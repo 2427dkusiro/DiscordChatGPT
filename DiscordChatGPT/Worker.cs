@@ -77,10 +77,20 @@ public class Worker : BackgroundService
 
 		_ = Task.Run(async () =>
 		{
-			var resp = await _botManager.CreateAIResponse(new ChannelInfo(channel.Name, channel.Id), new UserInfo(user.Username, user.Id), message.Content);
-			if (resp is not null)
+			try
 			{
-				await channel.SendMessageAsync(resp);
+				var resp = await _botManager.CreateAIResponse(new ChannelInfo(channel.Name, channel.Id), new UserInfo(user.Username, user.Id), message.Content);
+				if (resp is not null)
+				{
+					_logger.LogDebug(resp);
+					await channel.SendMessageAsync(resp);
+				}
+			}
+			catch (Exception ex)
+			{
+				var error = WriteErrorResponse(_secretManager, exception: ex);
+				_logger.LogError(error);
+				await channel.SendMessageAsync(error);
 			}
 		});
 		return;
@@ -99,6 +109,53 @@ public class Worker : BackgroundService
 		};
 		logger.Log(level, msg.Message);
 		return Task.CompletedTask;
+	}
+
+	public static string WriteErrorResponse(SecretManager secretManager, string message = "アプリケーションで内部的な不具合が発生しました。", Exception? exception = null)
+	{
+		string result;
+		if (exception is null)
+		{
+			result = message;
+		}
+		else
+		{
+			if (exception.InnerException is null)
+			{
+				var msg = $"""
+				{message}
+				以下は問題の特定と修正に役立つ可能性のある情報です。
+				```
+				{exception.GetType().Name}: {exception.Message}
+				{exception.StackTrace}
+				```
+				""";
+				result = msg;
+			}
+			else
+			{
+				var msg = $"""
+				{message}
+				以下は問題の特定と修正に役立つ可能性のある情報です。
+				```
+				{exception.GetType().Name}: {exception.Message}
+				   ---> 内部例外: {exception.InnerException.GetType().Name}: {exception.InnerException.Message}
+				{exception.StackTrace}
+				```
+				""";
+				result = msg;
+			}
+		}
+
+		if (result.Contains(secretManager.OpenAI_APIKey))
+		{
+			result = result.Replace(secretManager.OpenAI_APIKey, "***");
+		}
+		if (result.Contains(secretManager.Discord_BotKey))
+		{
+			result = result.Replace(secretManager.Discord_BotKey, "***");
+		}
+		return result;
 	}
 }
 

@@ -22,6 +22,7 @@ public class ChatGPTClient
 
 	private readonly HttpClient _client;
 
+	/*
 	public ChatGPTClient()
 	{
 		_client = new()
@@ -42,12 +43,16 @@ public class ChatGPTClient
 		}
 		throw new NotSupportedException("APIトークンを `__credential.secret` として配置してください。");
 	}
+	*/
 
 	public ChatGPTClient(string credential, string model, HttpClient client)
 	{
 		this.credential = credential;
 		this.model = model;
-		_client = client;
+		_client = new()
+		{
+			Timeout = TimeSpan.FromSeconds(apiTimeout)
+		};
 	}
 
 	/// <summary>
@@ -95,6 +100,7 @@ public class ChatGPTClient
 		};
 
 		var str = JsonSerializer.Serialize(request, options);
+		Exception? excp = null;
 
 		for (int retryCount = 0; retryCount < maxRetry; retryCount++)
 		{
@@ -111,25 +117,24 @@ public class ChatGPTClient
 			}
 			catch (Exception ex)
 			{
-				Console.Error.WriteLine(ex.Message);
+				excp = ex;
 				cancellationTokenSource.Cancel();
 				await Task.Delay(1000);
 				continue;
 			}
 
+			var body = await resp.Content.ReadAsStringAsync();
 			if (resp.IsSuccessStatusCode)
 			{
-				var body = await resp.Content.ReadAsStringAsync();
 				var obj = JsonSerializer.Deserialize<ChatGPTResponse>(body, options);
-
 				return obj ?? throw new InvalidOperationException($"Unexpected response: {body}");
 			}
 			else
 			{
-				Console.Error.WriteLine(resp.StatusCode.ToString());
+				excp = new IOException($"API HTTP error response {(int)resp.StatusCode}: {resp.StatusCode}. {body}");
 				continue;
 			}
 		}
-		throw new Exception("API retry limit exceeded.");
+		throw new TimeoutException("API retry limit exceeded.", excp);
 	}
 }

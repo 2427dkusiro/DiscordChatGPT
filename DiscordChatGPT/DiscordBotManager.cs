@@ -1,5 +1,7 @@
 ﻿using ChatGPTCLI;
 
+using System;
+
 namespace DiscordChatGPT;
 public class DiscordBOTManager
 {
@@ -90,8 +92,9 @@ public class DiscordBOTManager
 		// 課金機能ができるまで、どんなユーザーにも応答する
 		if (channels.Any(x => x.Id == channel.Id) /* && users.Any(x => x.Id == user.Id)*/ )
 		{
+			var client = chatGPTs[channel];
 			// 排他制御？
-			var resp = await chatGPTs[channel].SendMessageAsync(content);
+			var resp = await client.SendMessageAsync(content);
 			// ここで課金処理
 			return resp.Choices.First().Message.Content;
 		}
