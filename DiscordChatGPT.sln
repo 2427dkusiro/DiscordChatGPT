@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordChatGPT", "DiscordChatGPT\DiscordChatGPT.csproj", "{8FDD38E5-6E20-4159-A6D7-6770D1EBD50C}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{C058FF9F-E92F-41F4-82F4-707F4E581957}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8FDD38E5-6E20-4159-A6D7-6770D1EBD50C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FDD38E5-6E20-4159-A6D7-6770D1EBD50C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FDD38E5-6E20-4159-A6D7-6770D1EBD50C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FDD38E5-6E20-4159-A6D7-6770D1EBD50C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C058FF9F-E92F-41F4-82F4-707F4E581957}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C058FF9F-E92F-41F4-82F4-707F4E581957}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C058FF9F-E92F-41F4-82F4-707F4E581957}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C058FF9F-E92F-41F4-82F4-707F4E581957}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3781AC72-F79C-4F19-A626-8DE5275DCC3F}
+	EndGlobalSection
+EndGlobal
