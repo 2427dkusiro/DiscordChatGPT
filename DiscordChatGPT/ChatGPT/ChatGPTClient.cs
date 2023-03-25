@@ -18,7 +18,11 @@ public class ChatGPTClient
 	private static readonly int apiTimeout = 45;
 	private static readonly int maxRetry = 3;
 
-	private readonly List<ChatGPTMessage> messages = new();
+	private static readonly int maxHistory = 10;
+	private static readonly int maxHistoryToken = 2048;
+
+	private readonly List<ChatGPTMessageHistory> systemPrompts = new();
+	private readonly List<ChatGPTMessageHistory> messageHistories = new();
 
 	private readonly HttpClient _client;
 
@@ -61,7 +65,8 @@ public class ChatGPTClient
 	/// <param name="content"></param>
 	public void AddSystemPrompt(string content)
 	{
-		messages.Add(new ChatGPTMessage(Roles.System, content));
+		var length = content.Length; // トークナイザーとかないので雑計算
+		systemPrompts.Add(new ChatGPTMessageHistory(new ChatGPTMessage(Roles.System, content), length));
 	}
 
 	/// <summary>
@@ -72,10 +77,29 @@ public class ChatGPTClient
 	public async Task<ChatGPTResponse> SendMessageAsync(string content)
 	{
 		var message = new ChatGPTMessage(Roles.User, content);
-		var response = await PostAsync(new ChatGPTRequest(model, messages.WithAppend(message)));
+		var sys = systemPrompts.Select(x => x.Message);
+		var hist = Array.Empty<ChatGPTMessage>();
 
-		messages.Add(message);
-		messages.Add(response.Choices.First().Message);
+		var requiredTokens = systemPrompts.Sum(x => x.TokenLength) + content.Length;
+		if (requiredTokens < maxHistoryToken) // どうしようも無いときはもう投げる
+		{
+			int i;
+			for (i = 0; i < Math.Min(maxHistory, messageHistories.Count); i++)
+			{
+				requiredTokens += messageHistories[^(i + 1)].TokenLength;
+				if (requiredTokens > maxHistoryToken)
+				{
+					break;
+				}
+			}
+			hist = messageHistories.TakeLast(i).Select(x => x.Message).ToArray();
+		}
+
+		var req = sys.Concat(hist.Append(message)).ToArray(); // スレッド安全のために固めちゃう
+		var response = await PostAsync(new ChatGPTRequest(model, req));
+
+		messageHistories.Add(new ChatGPTMessageHistory(message, response.Usage.PromptTokens));
+		messageHistories.Add(new ChatGPTMessageHistory(response.Choices.First().Message, response.Usage.CompletionTokens));
 
 		return response;
 	}
@@ -85,9 +109,7 @@ public class ChatGPTClient
 	/// </summary>
 	public void ClearContext()
 	{
-		var sys = messages.Where(x => x.Role == Roles.System).ToArray();
-		messages.Clear();
-		messages.AddRange(sys);
+		messageHistories.Clear();
 	}
 
 	private async Task<ChatGPTResponse> PostAsync(ChatGPTRequest request)
@@ -138,3 +160,5 @@ public class ChatGPTClient
 		throw new TimeoutException("API retry limit exceeded.", excp);
 	}
 }
+
+public record ChatGPTMessageHistory(ChatGPTMessage Message, int TokenLength);
