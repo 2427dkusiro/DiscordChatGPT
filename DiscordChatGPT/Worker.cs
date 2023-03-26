@@ -1,4 +1,4 @@
-using Discord;
+ï»¿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 
@@ -42,11 +42,11 @@ public class Worker : BackgroundService
 		};
 
 #if DEBUG
-		while (!(_client.Guilds.Any(x => x?.Name == "^ƒzê") && _client.Guilds.Any(x => x?.Name == "HUIT")))
+		while (!(_client.Guilds.Any(x => x?.Name == "çœŸãƒ›å ´") && _client.Guilds.Any(x => x?.Name == "HUIT")))
 		{
 			await Task.Delay(100);
 		}
-		var id_np = _client.Guilds.First(guild => guild.Name == "^ƒzê").Id;
+		var id_np = _client.Guilds.First(guild => guild.Name == "çœŸãƒ›å ´").Id;
 		var id_huit = _client.Guilds.First(guild => guild.Name == "HUIT").Id;
 		_logger.LogInformation($"find debug guild id:{id_np}");
 		await interactionService.RegisterCommandsToGuildAsync(id_np);
@@ -71,7 +71,7 @@ public class Worker : BackgroundService
 		var channel = message.Channel;
 		if (message.Channel is IDMChannel)
 		{
-			await channel.SendMessageAsync("DM‚É‚Í‹ß“ú‘Î‰—\’èI");
+			await channel.SendMessageAsync("DMã«ã¯è¿‘æ—¥å¯¾å¿œäºˆå®šï¼");
 			return;
 		}
 
@@ -111,7 +111,7 @@ public class Worker : BackgroundService
 		return Task.CompletedTask;
 	}
 
-	public static string WriteErrorResponse(SecretManager secretManager, string message = "ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Å“à•”“I‚È•s‹ï‡‚ª”­¶‚µ‚Ü‚µ‚½B", Exception? exception = null)
+	public static string WriteErrorResponse(SecretManager secretManager, string message = "ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã§å†…éƒ¨çš„ãªä¸å…·åˆãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚", Exception? exception = null)
 	{
 		string result;
 		if (exception is null)
@@ -124,7 +124,7 @@ public class Worker : BackgroundService
 			{
 				var msg = $"""
 				{message}
-				ˆÈ‰º‚Í–â‘è‚Ì“Á’è‚ÆC³‚É–ğ—§‚Â‰Â”\«‚Ì‚ ‚éî•ñ‚Å‚·B
+				ä»¥ä¸‹ã¯å•é¡Œã®ç‰¹å®šã¨ä¿®æ­£ã«å½¹ç«‹ã¤å¯èƒ½æ€§ã®ã‚ã‚‹æƒ…å ±ã§ã™ã€‚
 				```
 				{exception.GetType().Name}: {exception.Message}
 				{exception.StackTrace}
@@ -136,10 +136,10 @@ public class Worker : BackgroundService
 			{
 				var msg = $"""
 				{message}
-				ˆÈ‰º‚Í–â‘è‚Ì“Á’è‚ÆC³‚É–ğ—§‚Â‰Â”\«‚Ì‚ ‚éî•ñ‚Å‚·B
+				ä»¥ä¸‹ã¯å•é¡Œã®ç‰¹å®šã¨ä¿®æ­£ã«å½¹ç«‹ã¤å¯èƒ½æ€§ã®ã‚ã‚‹æƒ…å ±ã§ã™ã€‚
 				```
 				{exception.GetType().Name}: {exception.Message}
-				   ---> “à•”—áŠO: {exception.InnerException.GetType().Name}: {exception.InnerException.Message}
+				   ---> å†…éƒ¨ä¾‹å¤–: {exception.InnerException.GetType().Name}: {exception.InnerException.Message}
 				{exception.StackTrace}
 				```
 				""";
@@ -159,7 +159,7 @@ public class Worker : BackgroundService
 	}
 }
 
-[Group("gpt", "chatGPT‚É‚æ‚éƒ`ƒƒƒbƒgƒ{ƒbƒg‚ğ’ñ‹Ÿ‚µ‚Ü‚·B")]
+[Group("gpt", "chatGPTã«ã‚ˆã‚‹ãƒãƒ£ãƒƒãƒˆãƒœãƒƒãƒˆã‚’æä¾›ã—ã¾ã™ã€‚")]
 public class CommandGroupModule : InteractionModuleBase<SocketInteractionContext>
 {
 	private readonly HttpClient _client;
@@ -174,12 +174,12 @@ public class CommandGroupModule : InteractionModuleBase<SocketInteractionContext
 		_botManager = manager;
 	}
 
-	[SlashCommand("activate", "AI‚ğ—LŒø‰»‚µ‚Ü‚·")]
+	[SlashCommand("activate", "AIã‚’æœ‰åŠ¹åŒ–ã—ã¾ã™")]
 	public async Task Activate([Choice("gpt3.5", "gpt-3.5-turbo"), Choice("gpt4(not available)", "gpt4(NA)")] string model)
 	{
 		if (model == "gpt4(NA)")
 		{
-			await RespondAsync("‘Î‰‚µ‚Ä‚¢‚È‚¢ƒ‚ƒfƒ‹‚Å‚·(—˜—p\¿’†)");
+			await RespondAsync("å¯¾å¿œã—ã¦ã„ãªã„ãƒ¢ãƒ‡ãƒ«ã§ã™(åˆ©ç”¨ç”³è«‹ä¸­)");
 		}
 
 		var channel = Context.Channel;
@@ -187,34 +187,34 @@ public class CommandGroupModule : InteractionModuleBase<SocketInteractionContext
 		await RespondAsync(resp);
 	}
 
-	[SlashCommand("administrator-keygen", "ŠÇ—Ò‚Æ‚µ‚Ä“o˜^‚µ‚Ü‚·")]
+	[SlashCommand("administrator-keygen", "ç®¡ç†è€…ã¨ã—ã¦ç™»éŒ²ã—ã¾ã™")]
 	public async Task AdministratorKeyGen()
 	{
-		await RespondAsync($"«—ˆ“I‚É‚ÍDigest•—‚Ì”FØ‹@\‚ªÀ‘•‚³‚ê‚éŒ©‚İ‚Å‚·B");
+		await RespondAsync($"å°†æ¥çš„ã«ã¯Digesté¢¨ã®èªè¨¼æ©Ÿæ§‹ãŒå®Ÿè£…ã•ã‚Œã‚‹è¦‹è¾¼ã¿ã§ã™ã€‚");
 	}
 
-	[SlashCommand("administrator-login", "ŠÇ—Ò‚Æ‚µ‚Ä“o˜^‚µ‚Ü‚·")]
+	[SlashCommand("administrator-login", "ç®¡ç†è€…ã¨ã—ã¦ç™»éŒ²ã—ã¾ã™")]
 	public async Task AdministratorLogin(string key)
 	{
 		var user = Context.User.Id;
-		await RespondAsync($"[–¢À‘•]ƒ†[ƒU[ '{user}' ‚ğŠÇ—Ò‚Æ‚µ‚Ä“o˜^‚µ‚Ü‚µ‚½B");
+		await RespondAsync($"[æœªå®Ÿè£…]ãƒ¦ãƒ¼ã‚¶ãƒ¼ '{user}' ã‚’ç®¡ç†è€…ã¨ã—ã¦ç™»éŒ²ã—ã¾ã—ãŸã€‚");
 	}
 
-	[SlashCommand("balance", "c‚‚ğÆ‰ï‚µ‚Ü‚·")]
+	[SlashCommand("balance", "æ®‹é«˜ã‚’ç…§ä¼šã—ã¾ã™")]
 	public async Task Balance()
 	{
 		var user = Context.User.Id;
-		await RespondAsync($"[–¢À‘•]ƒ†[ƒU[ '{user}' ‚Ìc‚‚Í...¡‚ÍƒAƒ‹ƒtƒ@”Å‚È‚Ì‚Å–³—¿‚Å‚·I", ephemeral: true);
+		await RespondAsync($"[æœªå®Ÿè£…]ãƒ¦ãƒ¼ã‚¶ãƒ¼ '{user}' ã®æ®‹é«˜ã¯...ä»Šã¯ã‚¢ãƒ«ãƒ•ã‚¡ç‰ˆãªã®ã§ç„¡æ–™ã§ã™ï¼", ephemeral: true);
 	}
 
-	[SlashCommand("charge", "ŠÇ—Ò‚ªc‚‚ğ•t—^‚µ‚Ü‚·")]
+	[SlashCommand("charge", "ç®¡ç†è€…ãŒæ®‹é«˜ã‚’ä»˜ä¸ã—ã¾ã™")]
 	public async Task Charge(IUser target, decimal amount)
 	{
 		var sender = Context.User.Id;
-		await RespondAsync($"[–¢À‘•]ƒ†[ƒU[ '{target.Username}'(ID:{target.Id}) ‚É '{amount}' ‚Ìc‚‚ğ•t—^‚µ‚Ü‚µ‚½B");
+		await RespondAsync($"[æœªå®Ÿè£…]ãƒ¦ãƒ¼ã‚¶ãƒ¼ '{target.Username}'(ID:{target.Id}) ã« '{amount}' ã®æ®‹é«˜ã‚’ä»˜ä¸ã—ã¾ã—ãŸã€‚");
 	}
 
-	[SlashCommand("clear", "‰ï˜bƒRƒ“ƒeƒLƒXƒg‚ğƒNƒŠƒA‚µ‚Ü‚·")]
+	[SlashCommand("clear", "ä¼šè©±ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢ã—ã¾ã™")]
 	public async Task Clear()
 	{
 		var channel = Context.Channel;
@@ -222,7 +222,7 @@ public class CommandGroupModule : InteractionModuleBase<SocketInteractionContext
 		await RespondAsync(resp);
 	}
 
-	[SlashCommand("exit", "AI‚Æ‚Ì‘Î˜b‚ğI—¹‚µ‚Ü‚·")]
+	[SlashCommand("exit", "AIã¨ã®å¯¾è©±ã‚’çµ‚äº†ã—ã¾ã™")]
 	public async Task Exit()
 	{
 		var channel = Context.Channel;
@@ -230,7 +230,7 @@ public class CommandGroupModule : InteractionModuleBase<SocketInteractionContext
 		await RespondAsync(resp);
 	}
 
-	[SlashCommand("register", "ƒ†[ƒU[“o˜^‚ğ‚µ‚Ü‚·")]
+	[SlashCommand("register", "ãƒ¦ãƒ¼ã‚¶ãƒ¼ç™»éŒ²ã‚’ã—ã¾ã™")]
 	public async Task Register()
 	{
 		var user = Context.User;
