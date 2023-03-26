@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ChatGPTCLI;
+namespace ChatGPTWrapper;
 
 /// <summary>
 /// ChatGPT を操作するクライアントを表現します。

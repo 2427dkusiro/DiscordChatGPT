@@ -1,4 +1,4 @@
-﻿namespace ChatGPTCLI;
+﻿namespace ChatGPTWrapper;
 
 /// <summary>
 /// 役割を表現します。
