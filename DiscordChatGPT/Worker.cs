@@ -33,6 +33,14 @@ public class Worker : BackgroundService
 		await _client.LoginAsync(TokenType.Bot, _secretManager.Discord_BotKey);
 		await _client.StartAsync();
 
+		TaskCompletionSource taskCompletionSource = new();
+		_client.Ready += () =>
+		{
+			taskCompletionSource.TrySetResult();
+			return Task.CompletedTask;
+		};
+		await taskCompletionSource.Task;
+
 		var interactionService = new InteractionService(_client);
 		await interactionService.AddModuleAsync<CommandGroupModule>(_serviceProvider);
 		_client.InteractionCreated += async (x) =>
