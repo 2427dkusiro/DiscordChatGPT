@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ChatGPTCLI;
+namespace ChatGPTWrapper;
 
 /// <summary>
 /// ChatGPT の使用料金情報を表現します。

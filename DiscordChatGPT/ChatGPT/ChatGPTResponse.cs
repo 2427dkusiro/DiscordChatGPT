@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ChatGPTCLI;
+namespace ChatGPTWrapper;
 
 /// <summary>
 /// ChatGPTのレスポンスを表現します。

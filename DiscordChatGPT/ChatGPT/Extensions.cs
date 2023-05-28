@@ -1,4 +1,4 @@
-﻿namespace ChatGPTCLI;
+﻿namespace ChatGPTWrapper;
 
 /// <summary>
 /// アプリケーションで使用する拡張メソッドを定義します。

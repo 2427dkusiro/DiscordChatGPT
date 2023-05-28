@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ChatGPTCLI;
+namespace ChatGPTWrapper;
 
 /// <summary>
 /// ChatGPT に対するリクエストを表現します。

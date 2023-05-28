@@ -1,4 +1,4 @@
-﻿using ChatGPTCLI;
+﻿using ChatGPTWrapper;
 
 using System;
 
