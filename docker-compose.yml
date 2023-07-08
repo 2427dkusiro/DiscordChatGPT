@@ -6,3 +6,4 @@ services:
     build:
       context: .
       dockerfile: DiscordChatGPT/Dockerfile
+    restart: always
