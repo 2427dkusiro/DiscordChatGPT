@@ -15,7 +15,7 @@ public class ChatGPTClient
     private readonly string credential;
     private readonly string model;
 
-    private static readonly int apiTimeout = 45;
+    private readonly int apiTimeout = 45;
     private static readonly int maxRetry = 5;
 
     private static readonly int maxHistory = 10;
@@ -24,7 +24,7 @@ public class ChatGPTClient
     private readonly List<ChatGPTMessageHistory> systemPrompts = new();
     private readonly List<ChatGPTMessageHistory> messageHistories = new();
 
-    private readonly HttpClient _client;
+    private HttpClient _client;
 
     public ChatGPTClient(string credential, string model, HttpClient? client = null)
     {
@@ -34,6 +34,7 @@ public class ChatGPTClient
         {
             Timeout = TimeSpan.FromSeconds(apiTimeout)
         };
+        apiTimeout = _client.Timeout.Seconds;
     }
 
     /// <summary>
@@ -120,13 +121,19 @@ public class ChatGPTClient
                 cancellationTokenSource.Cancel();
                 if (ex is TimeoutException)
                 {
-                    _client.Timeout *= 2;
+                    _client.Timeout += TimeSpan.FromSeconds(apiTimeout);
                 }
                 await Task.Delay(1000);
                 continue;
             }
 
-            _client.Timeout = TimeSpan.FromSeconds(apiTimeout);
+            if (_client.Timeout != TimeSpan.FromSeconds(apiTimeout))
+            {
+                _client = new()
+                {
+                    Timeout = TimeSpan.FromSeconds(apiTimeout)
+                };
+            }
 
             var body = await resp.Content.ReadAsStringAsync();
             if (resp.IsSuccessStatusCode)
