@@ -11,10 +11,11 @@ IHost host = Host.CreateDefaultBuilder(args)
 		services.AddHostedService<Worker>();
 
 		services.AddSingleton<HttpClient>();
-		services.AddDbContext<DiscordChatGPT.DB.DiscordDBContext>(options =>
+		/*services.AddDbContext<DiscordChatGPT.DB.DiscordDBContext>(options =>
 		{
 			options.UseInMemoryDatabase("TestDB");
 		});
+		*/
 		services.AddSingleton(secret);
 		services.AddSingleton(instance);
 	})
