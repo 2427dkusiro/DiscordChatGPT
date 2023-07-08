@@ -1,7 +1,5 @@
 ﻿using ChatGPTWrapper;
 
-using System;
-
 namespace DiscordChatGPT;
 public class DiscordBOTManager
 {

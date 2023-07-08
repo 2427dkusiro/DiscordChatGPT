@@ -13,7 +13,7 @@ public class ChatGPTClient
 {
     private static readonly string endPoint = "https://api.openai.com/v1/chat/completions";
     private readonly string credential;
-    private string model = "gpt-3.5-turbo";
+    private readonly string model;
 
     private static readonly int apiTimeout = 45;
     private static readonly int maxRetry = 5;
@@ -26,34 +26,11 @@ public class ChatGPTClient
 
     private readonly HttpClient _client;
 
-    /*
-	public ChatGPTClient()
-	{
-		_client = new()
-		{
-			Timeout = TimeSpan.FromSeconds(apiTimeout)
-		};
-
-		const string path = "./__credential.secret";
-		if (File.Exists(path))
-		{
-			using StreamReader reader = new(path);
-			var token = reader.ReadToEnd();
-			if (!string.IsNullOrWhiteSpace(token))
-			{
-				credential = token;
-				return;
-			}
-		}
-		throw new NotSupportedException("APIトークンを `__credential.secret` として配置してください。");
-	}
-	*/
-
-    public ChatGPTClient(string credential, string model, HttpClient client)
+    public ChatGPTClient(string credential, string model, HttpClient? client = null)
     {
         this.credential = credential;
         this.model = model;
-        _client = new()
+        _client = client ?? new()
         {
             Timeout = TimeSpan.FromSeconds(apiTimeout)
         };
@@ -143,7 +120,7 @@ public class ChatGPTClient
                 cancellationTokenSource.Cancel();
                 if (ex is TimeoutException)
                 {
-                    _client.Timeout += TimeSpan.FromSeconds(apiTimeout);
+                    _client.Timeout *= 2;
                 }
                 await Task.Delay(1000);
                 continue;

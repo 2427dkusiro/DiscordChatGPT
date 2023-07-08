@@ -183,13 +183,8 @@ public class CommandGroupModule : InteractionModuleBase<SocketInteractionContext
 	}
 
 	[SlashCommand("activate", "AIを有効化します")]
-	public async Task Activate([Choice("gpt3.5", "gpt-3.5-turbo"), Choice("gpt4(not available)", "gpt4(NA)")] string model)
+	public async Task Activate([Choice("gpt3.5", "gpt-3.5-turbo-0613"), Choice("gpt4", "gpt-4-0613")] string model)
 	{
-		if (model == "gpt4(NA)")
-		{
-			await RespondAsync("対応していないモデルです(利用申請中)");
-		}
-
 		var channel = Context.Channel;
 		var resp = await _botManager.Activate(_client, _secretManager, new ChannelInfo(channel.Name, channel.Id), model);
 		await RespondAsync(resp);
