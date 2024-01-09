@@ -13,10 +13,11 @@ public class ChatGPTClient
 {
     private static readonly string endPoint = "https://api.openai.com/v1/chat/completions";
     private readonly string credential;
-    private string model = "gpt-3.5-turbo";
+    private readonly string model;
 
-    private static readonly int apiTimeout = 45;
+    private readonly int apiTimeout = 60;
     private static readonly int maxRetry = 5;
+    private static readonly int retryInterval = 10;
 
     private static readonly int maxHistory = 10;
     private static readonly int maxHistoryToken = 1024 * 3;
@@ -24,32 +25,10 @@ public class ChatGPTClient
     private readonly List<ChatGPTMessageHistory> systemPrompts = new();
     private readonly List<ChatGPTMessageHistory> messageHistories = new();
 
-    private readonly HttpClient _client;
+    private HttpClient _client;
+    private ILogger logger;
 
-    /*
-	public ChatGPTClient()
-	{
-		_client = new()
-		{
-			Timeout = TimeSpan.FromSeconds(apiTimeout)
-		};
-
-		const string path = "./__credential.secret";
-		if (File.Exists(path))
-		{
-			using StreamReader reader = new(path);
-			var token = reader.ReadToEnd();
-			if (!string.IsNullOrWhiteSpace(token))
-			{
-				credential = token;
-				return;
-			}
-		}
-		throw new NotSupportedException("APIトークンを `__credential.secret` として配置してください。");
-	}
-	*/
-
-    public ChatGPTClient(string credential, string model, HttpClient client)
+    public ChatGPTClient(string credential, string model, ILogger logger)
     {
         this.credential = credential;
         this.model = model;
@@ -57,6 +36,7 @@ public class ChatGPTClient
         {
             Timeout = TimeSpan.FromSeconds(apiTimeout)
         };
+        this.logger = logger;
     }
 
     /// <summary>
@@ -133,6 +113,7 @@ public class ChatGPTClient
 
             CancellationTokenSource cancellationTokenSource = new();
             HttpResponseMessage resp;
+            logger.LogInformation($"send http-req with timeout {_client.Timeout.TotalSeconds}sec");
             try
             {
                 resp = await _client.SendAsync(httpReq, cancellationTokenSource.Token);
@@ -141,15 +122,26 @@ public class ChatGPTClient
             {
                 excp = ex;
                 cancellationTokenSource.Cancel();
-                if (ex is TimeoutException)
+                if (ex is TimeoutException or TaskCanceledException)
                 {
-                    _client.Timeout += TimeSpan.FromSeconds(apiTimeout);
+                    // ほんとうはinstanceをプールしたほうがいい
+                    var currentTimeout = _client.Timeout;
+                    _client = new()
+                    {
+                        Timeout = currentTimeout + TimeSpan.FromSeconds(apiTimeout)
+                    };
                 }
-                await Task.Delay(1000);
+                await Task.Delay(retryInterval);
                 continue;
             }
 
-            _client.Timeout = TimeSpan.FromSeconds(apiTimeout);
+            if (_client.Timeout != TimeSpan.FromSeconds(apiTimeout))
+            {
+                _client = new()
+                {
+                    Timeout = TimeSpan.FromSeconds(apiTimeout)
+                };
+            }
 
             var body = await resp.Content.ReadAsStringAsync();
             if (resp.IsSuccessStatusCode)
