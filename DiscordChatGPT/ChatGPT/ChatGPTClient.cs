@@ -15,8 +15,9 @@ public class ChatGPTClient
     private readonly string credential;
     private readonly string model;
 
-    private readonly int apiTimeout = 45;
+    private readonly int apiTimeout = 60;
     private static readonly int maxRetry = 5;
+    private static readonly int retryInterval = 10;
 
     private static readonly int maxHistory = 10;
     private static readonly int maxHistoryToken = 1024 * 3;
@@ -25,16 +26,17 @@ public class ChatGPTClient
     private readonly List<ChatGPTMessageHistory> messageHistories = new();
 
     private HttpClient _client;
+    private ILogger logger;
 
-    public ChatGPTClient(string credential, string model, HttpClient? client = null)
+    public ChatGPTClient(string credential, string model, ILogger logger)
     {
         this.credential = credential;
         this.model = model;
-        _client = client ?? new()
+        _client = new()
         {
             Timeout = TimeSpan.FromSeconds(apiTimeout)
         };
-        apiTimeout = _client.Timeout.Seconds;
+        this.logger = logger;
     }
 
     /// <summary>
@@ -111,6 +113,7 @@ public class ChatGPTClient
 
             CancellationTokenSource cancellationTokenSource = new();
             HttpResponseMessage resp;
+            logger.LogInformation($"send http-req with timeout {_client.Timeout.TotalSeconds}sec");
             try
             {
                 resp = await _client.SendAsync(httpReq, cancellationTokenSource.Token);
@@ -119,11 +122,16 @@ public class ChatGPTClient
             {
                 excp = ex;
                 cancellationTokenSource.Cancel();
-                if (ex is TimeoutException)
+                if (ex is TimeoutException or TaskCanceledException)
                 {
-                    _client.Timeout += TimeSpan.FromSeconds(apiTimeout);
+                    // ほんとうはinstanceをプールしたほうがいい
+                    var currentTimeout = _client.Timeout;
+                    _client = new()
+                    {
+                        Timeout = currentTimeout + TimeSpan.FromSeconds(apiTimeout)
+                    };
                 }
-                await Task.Delay(1000);
+                await Task.Delay(retryInterval);
                 continue;
             }
 
