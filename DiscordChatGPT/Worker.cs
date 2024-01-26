@@ -91,6 +91,13 @@ public class Worker : BackgroundService
                 if (resp is not null)
                 {
                     _logger.LogDebug(resp);
+                    const int limit = 2000;
+                    while (resp.Length > limit)
+                    {
+                        await channel.SendFileAsync(resp[..(limit + 1)]);
+                        resp = resp[(limit + 1)..];
+                        await Task.Delay(5000);
+                    }
                     await channel.SendMessageAsync(resp);
                 }
             }
@@ -184,7 +191,7 @@ public class CommandGroupModule : InteractionModuleBase<SocketInteractionContext
     }
 
     [SlashCommand("activate", "AIを有効化します")]
-    public async Task Activate([Choice("gpt3.5", "gpt-3.5-turbo-1106"), Choice("gpt4", "gpt-4-1106-preview"), Choice("gpt4-old", "gpt-4-0613")] string model)
+    public async Task Activate([Choice("gpt3.5", "gpt-3.5-turbo-1106"), Choice("gpt4", "gpt-4-0125-preview"), Choice("gpt4-old", "gpt-4-0613")] string model)
     {
         var channel = Context.Channel;
         _logger.Log(LogLevel.Information, $"チャット開始 場所:{channel.Name}, モデル:{model} 実行者:{Context.User.Username}");
