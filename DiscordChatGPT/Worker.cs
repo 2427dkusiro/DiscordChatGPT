@@ -82,12 +82,12 @@ public class Worker : BackgroundService
                 if (resp is not null)
                 {
                     _logger.LogDebug($"response length:{resp.Length}");
-                    const int limit = 950;
+                    const int limit = 2000;
                     while (resp.Length > limit)
                     {
                         var part = resp[..(limit + 1)];
                         _logger.LogDebug($"parcial response:{part}");
-                        await channel.SendFileAsync(part);
+                        await channel.SendMessageAsync(part);
                         resp = resp[(limit + 1)..];
                         await Task.Delay(5000);
                     }
