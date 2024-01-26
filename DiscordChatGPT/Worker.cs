@@ -82,7 +82,7 @@ public class Worker : BackgroundService
                 if (resp is not null)
                 {
                     _logger.LogDebug($"response length:{resp.Length}");
-                    const int limit = 2000;
+                    const int limit = 1200;
                     while (resp.Length > limit)
                     {
                         var part = resp[..(limit + 1)];
