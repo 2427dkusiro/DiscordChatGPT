@@ -51,19 +51,7 @@ public class Worker : BackgroundService
             await interactionService.ExecuteCommandAsync(ctx, _serviceProvider);
         };
 
-#if DEBUG
-        while (!(_client.Guilds.Any(x => x?.Name == "真ホ場") && _client.Guilds.Any(x => x?.Name == "HUIT")))
-        {
-            await Task.Delay(100);
-        }
-        var id_np = _client.Guilds.First(guild => guild.Name == "真ホ場").Id;
-        var id_huit = _client.Guilds.First(guild => guild.Name == "HUIT").Id;
-        _logger.LogInformation($"find debug guild id:{id_np}");
-        await interactionService.RegisterCommandsToGuildAsync(id_np);
-        await interactionService.RegisterCommandsToGuildAsync(id_huit);
-#else
-		await interactionService.RegisterCommandsGloballyAsync();
-#endif
+        await interactionService.RegisterCommandsGloballyAsync();
 
         _client.MessageReceived += HandleMessage;
 
@@ -93,14 +81,17 @@ public class Worker : BackgroundService
                 var resp = await _botManager.CreateAIResponse(new ChannelInfo(channel.Name, channel.Id), new UserInfo(user.Username, user.Id), message.Content);
                 if (resp is not null)
                 {
-                    _logger.LogDebug(resp);
-                    const int limit = 2000;
+                    _logger.LogDebug($"response length:{resp.Length}");
+                    const int limit = 1200;
                     while (resp.Length > limit)
                     {
-                        await channel.SendFileAsync(resp[..(limit + 1)]);
+                        var part = resp[..(limit + 1)];
+                        _logger.LogDebug($"parcial response:{part}");
+                        await channel.SendFileAsync(part);
                         resp = resp[(limit + 1)..];
                         await Task.Delay(5000);
                     }
+                    _logger.LogDebug($"response dump:{resp}");
                     await channel.SendMessageAsync(resp);
                 }
             }
