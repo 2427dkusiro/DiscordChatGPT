@@ -2,6 +2,8 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 
+using System.Reflection;
+
 namespace DiscordChatGPT;
 
 public class Worker : BackgroundService
@@ -65,6 +67,7 @@ public class Worker : BackgroundService
 
         _client.MessageReceived += HandleMessage;
 
+        _logger.LogInformation("release 2024.1.26");
         _logger.LogInformation("start eventloop...");
         await Task.Delay(-1, stoppingToken);
     }
